@@ -377,13 +377,7 @@ public class Discord implements EventListener {
         try {
             if (isKilled) return;
             if (WEBHOOK.BOT_WEBHOOK) {
-                final WebhookMessageBuilder b = new WebhookMessageBuilder();
-                b.setContent(msg);
-                b.setUsername(name);
-                b.setAvatarUrl(avatarURL);
-                final WebhookClient cli = WebhookClient.withUrl(getWebhook(ch).getUrl());
-                cli.send(b.build());
-                cli.close();
+                sendWebhookMessage(name, msg, ch, avatarURL);
             } else {
                 ch.sendMessage(Configuration.MESSAGES.PLAYER_CHAT_MSG.replace("%player%", name).replace("%msg%", msg)).queue();
             }
@@ -407,28 +401,15 @@ public class Discord implements EventListener {
      * @param UUID       the player uuid
      * @param msg        the message to send
      */
-    @SuppressWarnings("ConstantConditions")
     public void sendMessage(String playerName, String UUID, String msg, TextChannel channel) {
         if (!Configuration.MESSAGES.DISCORD_COLOR_CODES) msg = DiscordIntegration.stripControlCodes(msg);
         try {
             if (isKilled) return;
             if (WEBHOOK.BOT_WEBHOOK) {
                 if (playerName.equals(WEBHOOK.SERVER_NAME) && UUID.equals("0000000")) {
-                    final WebhookMessageBuilder b = new WebhookMessageBuilder();
-                    b.setContent(msg);
-                    b.setUsername(Configuration.WEBHOOK.SERVER_NAME);
-                    b.setAvatarUrl(Configuration.WEBHOOK.SERVER_AVATAR);
-                    final WebhookClient cli = WebhookClient.withUrl(getWebhook(channel).getUrl());
-                    cli.send(b.build());
-                    cli.close();
+                    sendWebhookMessage(playerName, msg, channel, WEBHOOK.SERVER_AVATAR);
                 } else {
-                    final WebhookMessageBuilder b = new WebhookMessageBuilder();
-                    b.setContent(msg);
-                    b.setUsername(playerName);
-                    b.setAvatarUrl("https://minotar.net/avatar/" + UUID);
-                    final WebhookClient cli = WebhookClient.withUrl(getWebhook(channel).getUrl());
-                    cli.send(b.build());
-                    cli.close();
+                    sendWebhookMessage(playerName, msg, channel, "https://minotar.net/avatar/" + UUID);
                 }
             } else if (playerName.equals(WEBHOOK.SERVER_NAME) && UUID.equals("0000000")) {
                 channel.sendMessage(msg).queue();
@@ -437,6 +418,16 @@ public class Discord implements EventListener {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private void sendWebhookMessage(String playerName, String msg, TextChannel channel, String s) {
+        final WebhookMessageBuilder b = new WebhookMessageBuilder();
+        b.setContent(msg);
+        b.setUsername(playerName);
+        b.setAvatarUrl(s);
+        final WebhookClient cli = WebhookClient.withUrl(getWebhook(channel).getUrl());
+        cli.send(b.build());
+        cli.close();
     }
 
     /**

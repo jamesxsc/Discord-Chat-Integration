@@ -51,9 +51,8 @@ import static de.erdbeerbaerlp.dcintegration.Configuration.ADVANCED;
 
 
 @Mod(modid = DiscordIntegration.MODID, version = DiscordIntegration.VERSION, name = DiscordIntegration.NAME, serverSideOnly = true, acceptableRemoteVersions = "*",
-     updateJSON = "https://raw.githubusercontent.com/ErdbeerbaerLP/Discord-Chat-Integration/master/update_check.json")
-public class DiscordIntegration
-{
+        updateJSON = "https://raw.githubusercontent.com/ErdbeerbaerLP/Discord-Chat-Integration/master/update_check.json")
+public class DiscordIntegration {
     /**
      * Mod name
      */
@@ -84,11 +83,12 @@ public class DiscordIntegration
      * If the server was stopped or has crashed
      */
     private boolean stopped = false;
-    
-    public DiscordIntegration() {}
-    
+
+    public DiscordIntegration() {
+    }
+
     static String defaultCommandJson;
-    
+
     static {
         final JsonObject a = new JsonObject();
         final JsonObject kick = new JsonObject();
@@ -123,6 +123,7 @@ public class DiscordIntegration
         final Gson gson = new GsonBuilder().create();
         defaultCommandJson = gson.toJson(a);
     }
+
     /**
      * Removes Color code formatting
      *
@@ -131,10 +132,10 @@ public class DiscordIntegration
      */
     public static String removeFormatting(String formatted) {
         return formatted.replaceAll("\u00A70", "").replaceAll("\u00A71", "").replaceAll("\u00A72", "").replaceAll("\u00A73", "").replaceAll("\u00A74", "").replaceAll("\u00A75", "").replaceAll("\u00A76", "").replaceAll("\u00A77", "")
-                        .replaceAll("\u00A78", "").replaceAll("\u00A79", "").replaceAll("\u00A7a", "").replaceAll("\u00A7b", "").replaceAll("\u00A7c", "").replaceAll("\u00A7d", "").replaceAll("\u00A7e", "").replaceAll("\u00A7f", "")
-                        .replaceAll("\u00A7l", "").replaceAll("\u00A7k", "").replaceAll("\u00A7m", "").replaceAll("\u00A7n", "").replaceAll("\u00A7o", "").replaceAll("\u00A7r", "");
+                .replaceAll("\u00A78", "").replaceAll("\u00A79", "").replaceAll("\u00A7a", "").replaceAll("\u00A7b", "").replaceAll("\u00A7c", "").replaceAll("\u00A7d", "").replaceAll("\u00A7e", "").replaceAll("\u00A7f", "")
+                .replaceAll("\u00A7l", "").replaceAll("\u00A7k", "").replaceAll("\u00A7m", "").replaceAll("\u00A7n", "").replaceAll("\u00A7o", "").replaceAll("\u00A7r", "");
     }
-    
+
     public static String formatPlayerName(Entity p, boolean chatFormat) {
         if (Loader.isModLoaded("ftbutilities") && p instanceof EntityPlayer) {
             final FTBUtilitiesPlayerData d = FTBUtilitiesPlayerData.get(Universe.get().getPlayer(p));
@@ -191,24 +192,25 @@ public class DiscordIntegration
             String[] aliases = new String[0];
             if (cmdVal.has("aliases") && cmdVal.get("aliases").isJsonArray()) {
                 aliases = new String[cmdVal.getAsJsonArray("aliases").size()];
-                for (int i = 0 ; i < aliases.length ; i++)
+                for (int i = 0; i < aliases.length; i++)
                     aliases[i] = cmdVal.getAsJsonArray("aliases").get(i).getAsString();
             }
             String[] channelID = (cmdVal.has("channelID") && cmdVal.get("channelID") instanceof JsonArray) ? makeStringArray(cmdVal.get("channelID").getAsJsonArray()) : new String[]{"0"};
             final DiscordCommand regCmd = new CommandFromCFG(cmd.getKey(), desc, mcCommand, admin, aliases, useArgs, argText, channelID);
-            if (!discord_instance.registerCommand(regCmd)) System.err.println("Failed Registering command \"" + cmd.getKey() + "\" because it would override an existing command!");
-    
+            if (!discord_instance.registerCommand(regCmd))
+                System.err.println("Failed Registering command \"" + cmd.getKey() + "\" because it would override an existing command!");
+
         }
     }
-    
+
     private static String[] makeStringArray(final JsonArray channelID) {
         final String[] out = new String[channelID.size()];
-        for (int i = 0 ; i < out.length ; i++) {
+        for (int i = 0; i < out.length; i++) {
             out[i] = channelID.get(i).getAsString();
         }
         return out;
     }
-    
+
     @EventHandler
     public void init(FMLInitializationEvent ev) {
         if (discord_instance != null && !Configuration.WEBHOOK.BOT_WEBHOOK)
@@ -217,17 +219,17 @@ public class DiscordIntegration
             (ADVANCED.CHANNEL_DESCRIPTION_ID.isEmpty() ? discord_instance.getChannelManager() : discord_instance.getChannelManager(ADVANCED.CHANNEL_DESCRIPTION_ID)).setTopic(Configuration.MESSAGES.CHANNEL_DESCRIPTION_STARTING).complete();
 
     }
-    
+
     @EventHandler
     public void serverAboutToStart(FMLServerAboutToStartEvent ev) {
-    
+
     }
-    
+
     @EventHandler
     public void serverStarting(FMLServerStartingEvent ev) {
         ev.registerServerCommand(new McCommandDiscord());
     }
-    
+
     @EventHandler
     public void serverStarted(FMLServerStartedEvent ev) {
         started = new Date().getTime();
@@ -243,38 +245,32 @@ public class DiscordIntegration
         final Thread discordShutdownThread = new Thread(this::stopDiscord);
         discordShutdownThread.setDaemon(false);
         //Runtime.getRuntime().addShutdownHook(discordShutdownThread);
-        
+
         if (Configuration.GENERAL.UPDATE_CHECK) {
             CheckResult result = ForgeVersion.getResult(Loader.instance().getIndexedModList().get(DiscordIntegration.MODID));
             if (result.status == Status.OUTDATED) {
                 System.out.println(
                         "\n\u00A76[\u00A75DiscordIntegration\u00A76]\u00A7c Update available!\n\u00A7cCurrent version: \u00A74" + DiscordIntegration.VERSION + "\u00A7c, Newest: \u00A7a" + result.target + "\n\u00A7cChangelog:\n\u00A76" + result.changes
                                 .get(result.target) + "\nDownload the newest version on https://minecraft.curseforge.com/projects/dcintegration");
-            }
-            else if (result.status == Status.AHEAD) {
+            } else if (result.status == Status.AHEAD) {
                 System.out.println("\n\u00A76[\u00A75DiscordIntegration\u00A76]\u00A77 It looks like you are using an Development version... \n\u00A77Your version: \u00A76" + DiscordIntegration.VERSION);
-            }
-            else if (result.status == Status.FAILED) {
+            } else if (result.status == Status.FAILED) {
                 System.err.println("\u00A76[\u00A75DiscordIntegration\u00A76]\u00A7c FAILED TO CHECK FOR UPDATES");
-            }
-            else if (result.status == Status.BETA) {
+            } else if (result.status == Status.BETA) {
                 System.out.println("\n\u00A76[\u00A75DiscordIntegration\u00A76]\u00A7a You are using an Beta Version. This may contain bugs which are being fixed.");
-            }
-            else if (result.status == Status.BETA_OUTDATED) {
+            } else if (result.status == Status.BETA_OUTDATED) {
                 System.out.println(new TextComponentString(
                         "\u00A76[\u00A75DiscordIntegration\u00A76]\u00A7c You are using an Outdated Beta Version. This may contain bugs which are being fixed or are already fixed\n\u00A76Changelog of newer Beta:" + result.changes
                                 .get(result.target)));
-            }
-            else //noinspection StatementWithEmptyBody
+            } else //noinspection StatementWithEmptyBody
                 if (result.status == Status.UP_TO_DATE) {
-                }
-                else {
+                } else {
                     System.out.println("\n\u00A76[\u00A75DiscordIntegration\u00A76]\u00A7cUpdateCheck: " + result.status.toString());
                 }
-            
+
         }
     }
-    
+
     @EventHandler
     public void imc(FMLInterModComms.IMCEvent ev) {
         for (FMLInterModComms.IMCMessage e : ev.getMessages()) {
@@ -290,11 +286,11 @@ public class DiscordIntegration
             }
         }
     }
-    
+
     private boolean isModIDBlacklisted(String sender) {
         return ArrayUtils.contains(Configuration.COMMANDS.IMC_MOD_ID_BLACKLIST, sender);
     }
-    
+
     @EventHandler
     public void serverStopping(FMLServerStoppingEvent ev) {
         if (discord_instance != null) {
@@ -313,12 +309,12 @@ public class DiscordIntegration
         }
         stopped = true;
     }
-    
+
     @EventHandler
     public void serverStopped(FMLServerStoppedEvent ev) {
         FMLCommonHandler.instance().getMinecraftServerInstance().callFromMainThread(Executors.callable(this::stopDiscord)); //Attempt to force send the messages before server finally closes
     }
-    
+
     private void stopDiscord() {
         if (discord_instance != null) {
             if (!stopped) {
@@ -332,13 +328,13 @@ public class DiscordIntegration
             discord_instance.kill();
         }
     }
-    
+
     @SubscribeEvent
     public void playerJoin(PlayerLoggedInEvent ev) {
         if (discord_instance != null && !Configuration.MESSAGES.DISABLE_JOIN_LEAVE_MESSAGES)
             discord_instance.sendMessage(Configuration.MESSAGES.PLAYER_JOINED_MSG.replace("%player%", formatPlayerName(ev.player, false)));
     }
-    
+
     @SubscribeEvent
     public void playerLeave(PlayerLoggedOutEvent ev) {
         if (discord_instance != null && !Configuration.MESSAGES.DISABLE_JOIN_LEAVE_MESSAGES && !timeouts.contains(ev.player.getUniqueID()))
@@ -348,30 +344,34 @@ public class DiscordIntegration
             timeouts.remove(ev.player.getUniqueID());
         }
     }
-    
+
     @SuppressWarnings("StringConcatenationInLoop")
     @SubscribeEvent
     public void command(CommandEvent ev) {
         //Uncomment below to crash the server on console command (used to test crash detection)
         //((World)null).setBlockState(null, null);
         if (ev.isCanceled()) return;
-        if (discord_instance != null) if ((ev.getCommand().getName().equals("say") && Configuration.MESSAGES.ENABLE_SAY_OUTPUT) || (ev.getCommand().getName().equals("me") && Configuration.MESSAGES.ENABLE_ME_OUTPUT)) {
-            String msg = "";
-            for (String s : ev.getParameters()) {
-                msg = msg + s + " ";
+        if (discord_instance != null)
+            if ((ev.getCommand().getName().equals("say") && Configuration.MESSAGES.ENABLE_SAY_OUTPUT) || (ev.getCommand().getName().equals("me") && Configuration.MESSAGES.ENABLE_ME_OUTPUT)) {
+                String msg = "";
+                for (String s : ev.getParameters()) {
+                    msg = msg + s + " ";
+                }
+                if (ev.getCommand().getName().equals("me")) msg = "*" + msg.trim() + "*";
+                if (ev.getSender() instanceof DedicatedServer) discord_instance.sendMessage(msg);
+                else if (ev.getSender() instanceof EntityPlayer || ev.getSender() instanceof FakePlayer)
+                    discord_instance.sendMessage(formatPlayerName((EntityPlayer) ev.getSender()),
+                            ev.getSender().getCommandSenderEntity().getUniqueID().toString(), msg);
             }
-            if (ev.getCommand().getName().equals("me")) msg = "*" + msg.trim() + "*";
-            if (ev.getSender() instanceof DedicatedServer) discord_instance.sendMessage(msg);
-            else if (ev.getSender() instanceof EntityPlayer || ev.getSender() instanceof FakePlayer) discord_instance.sendMessage(formatPlayerName((EntityPlayer) ev.getSender()),
-                                                                                                                                  ev.getSender().getCommandSenderEntity().getUniqueID().toString(), msg);
-        }
     }
-    
+
     @SubscribeEvent
     public void chat(ServerChatEvent ev) {
-        if (discord_instance != null) discord_instance.sendMessage(ev.getPlayer(), ev.getMessage().replace("@everyone", "[at]everyone").replace("@here", "[at]here"));
+        if (discord_instance != null)
+            // todo maybe add config for disable wildcard mentions
+            discord_instance.sendMessage(ev.getPlayer(), ev.getMessage());
     }
-    
+
     @SubscribeEvent
     public void death(LivingDeathEvent ev) {
         if (ev.getEntity() instanceof EntityPlayerMP || (ev.getEntity() instanceof EntityTameable && ((EntityTameable) ev.getEntity()).getOwner() instanceof EntityPlayerMP && Configuration.MESSAGES.TAMED_DEATH_ENABLED)) {
@@ -381,29 +381,32 @@ public class DiscordIntegration
                         .replace(ev.getEntity().getName() + " ", "")), ADVANCED.DEATH_CHANNEL_ID.isEmpty() ? discord_instance.getChannel() : discord_instance.getChannel(ADVANCED.DEATH_CHANNEL_ID));
         }
     }
-    
+
     private static final Pattern PATTERN_CONTROL_CODE = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
-    
+
     public static String stripControlCodes(String text) {
         return PATTERN_CONTROL_CODE.matcher(text).replaceAll("");
     }
+
     @SubscribeEvent
     public void advancement(AdvancementEvent ev) {
-        if (discord_instance != null && ev.getAdvancement().getDisplay() != null && ev.getAdvancement().getDisplay().shouldAnnounceToChat()) discord_instance.sendMessage(Configuration.MESSAGES.PLAYER_ADVANCEMENT_MSG.replace("%player%",
-                                                                                                                                                                                                                                formatPlayerName(
-                                                                                                                                                                                                                                        ev.getEntityPlayer()))
-                                                                                                                                                                                                                       .replace("%name%",
-                                                                                                                                                                                                                                ev.getAdvancement()
-                                                                                                                                                                                                                                  .getDisplay()
-                                                                                                                                                                                                                                  .getTitle()
-                                                                                                                                                                                                                                  .getUnformattedText())
-                                                                                                                                                                                                                       .replace("%desc%",
-                                                                                                                                                                                                                                ev.getAdvancement()
-                                                                                                                                                                                                                                  .getDisplay()
-                                                                                                                                                                                                                                  .getDescription()
-                                                                                                                                                                                                                                  .getUnformattedText())
-                                                                                                                                                                                                                       .replace("\\n", "\n"));
+        if (discord_instance != null && ev.getAdvancement().getDisplay() != null && ev.getAdvancement().getDisplay().shouldAnnounceToChat())
+            discord_instance.sendMessage(Configuration.MESSAGES.PLAYER_ADVANCEMENT_MSG.replace("%player%",
+                    formatPlayerName(
+                            ev.getEntityPlayer()))
+                    .replace("%name%",
+                            ev.getAdvancement()
+                                    .getDisplay()
+                                    .getTitle()
+                                    .getUnformattedText())
+                    .replace("%desc%",
+                            ev.getAdvancement()
+                                    .getDisplay()
+                                    .getDescription()
+                                    .getUnformattedText())
+                    .replace("\\n", "\n"));
     }
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent ev) {
         System.out.println("Loading mod");
